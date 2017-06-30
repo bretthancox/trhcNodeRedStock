@@ -1,0 +1,287 @@
+/*Replace {{stock}} with name and {{stock code}} with the abbreviation. Replace {{api_token}} with slack API token.*/
+
+[
+    {
+        "id": "89b1b7f7.f40868",
+        "type": "http request",
+        "z": "a6dc819e.b0e6f",
+        "name": "Get {{stock}} stock page from Yahoo",
+        "method": "GET",
+        "ret": "txt",
+        "url": "https://finance.yahoo.com/quote/{{stock code}}?p={{stock code}}",
+        "tls": "",
+        "x": 448,
+        "y": 198,
+        "wires": [
+            [
+                "e90fa02.d1f726"
+            ]
+        ]
+    },
+    {
+        "id": "e3ab6071.827d7",
+        "type": "inject",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "topic": "",
+        "payload": " ",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 166,
+        "y": 204,
+        "wires": [
+            [
+                "89b1b7f7.f40868"
+            ]
+        ]
+    },
+    {
+        "id": "4f67b684.74b728",
+        "type": "html",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "tag": ".classname",
+        "ret": "html",
+        "as": "multi",
+        "x": 628,
+        "y": 353,
+        "wires": [
+            [
+                "4bc6c9cf.656188"
+            ]
+        ]
+    },
+    {
+        "id": "e90fa02.d1f726",
+        "type": "function",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "func": "var str = \"Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)\";\nvar str2 = \"Trsdu(0.3s)\";\nvar html = msg.payload;\nvar html2 = msg.payload;\nif(html.indexOf(str) >= 0) {\n    var correctedPrc = html.replace(\"Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)\", \"classname\");\n    var correctedChng = html.replace(\"Trsdu(0.3s) Fw(500) Pstart(10px) Fz(24px) C($dataRed)\", \"classname\");\n    price = {payload: correctedPrc};\n    change = {payload: correctedChng};\n}\n\nif(html2.indexOf(str2) >= 0) {\n    var prevClose = html2.replace(\"\\\"Trsdu(0.3s) \\\" data-reactid=\\\"36\\\"\", \"\\\"classname\\\"\");\n    close = {payload: prevClose};\n}\n\nreturn [price, change, close];",
+        "outputs": "3",
+        "noerr": 0,
+        "x": 350,
+        "y": 454,
+        "wires": [
+            [
+                "4f67b684.74b728"
+            ],
+            [
+                "2c592d14.eeb522"
+            ],
+            [
+                "2317a61c.9e559a"
+            ]
+        ]
+    },
+    {
+        "id": "2c592d14.eeb522",
+        "type": "html",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "tag": ".classname",
+        "ret": "html",
+        "as": "multi",
+        "x": 546,
+        "y": 476,
+        "wires": [
+            [
+                "6cd7e0d2.8f8ab"
+            ]
+        ]
+    },
+    {
+        "id": "415c20a.1c385e",
+        "type": "debug",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "active": true,
+        "console": "true",
+        "complete": "payload",
+        "x": 1167,
+        "y": 528,
+        "wires": []
+    },
+    {
+        "id": "4bc6c9cf.656188",
+        "type": "function",
+        "z": "a6dc819e.b0e6f",
+        "name": "Title and price",
+        "func": "var pricevalue = msg.payload;\nvar labelprice = {payload: (\"\\n*TRHC latest*: \\nPrice: \" + pricevalue), parts: {id: 'a1', index: 0, count: 2, type: 'array'}};\nreturn labelprice;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 801,
+        "y": 406,
+        "wires": [
+            [
+                "f7715088.3ee14",
+                "aafd94dd.4da9e8",
+                "415c20a.1c385e"
+            ]
+        ]
+    },
+    {
+        "id": "6cd7e0d2.8f8ab",
+        "type": "function",
+        "z": "a6dc819e.b0e6f",
+        "name": "Percentage change",
+        "func": "var changevalue = msg.payload;\nvar labelchange = {payload: (\"Change: \" + changevalue), parts: {id: 'a1', index: 1, count: 2, type: 'array'}};\nreturn labelchange;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 757,
+        "y": 569,
+        "wires": [
+            [
+                "f7715088.3ee14",
+                "aafd94dd.4da9e8",
+                "415c20a.1c385e"
+            ]
+        ]
+    },
+    {
+        "id": "aafd94dd.4da9e8",
+        "type": "join",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "mode": "auto",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "timeout": "",
+        "count": "2",
+        "x": 874.0000076293945,
+        "y": 779.9999876022339,
+        "wires": [
+            [
+                "415c20a.1c385e",
+                "de064987.ed88e8"
+            ]
+        ]
+    },
+    {
+        "id": "4f4cd605.745db8",
+        "type": "Slack Bot Out",
+        "z": "a6dc819e.b0e6f",
+        "name": "Stock channel",
+        "apiToken": "{{api_token}}",
+        "channel": "stockchannel",
+        "x": 1280,
+        "y": 794,
+        "wires": []
+    },
+    {
+        "id": "c5628914.89c5e8",
+        "type": "scheduler",
+        "z": "a6dc819e.b0e6f",
+        "outtopic": "",
+        "outpayload1": " ",
+        "outpayload2": "",
+        "name": "My Scheduler",
+        "lat": "39.95",
+        "lon": "-74.94",
+        "start": "sunrise",
+        "end": "sunset",
+        "starttime": "540",
+        "endtime": "990",
+        "duskoff": "0",
+        "dawnoff": "0",
+        "outtext1": "",
+        "outtext2": "",
+        "sun": true,
+        "mon": true,
+        "tue": true,
+        "wed": true,
+        "thu": true,
+        "fri": true,
+        "sat": true,
+        "jan": true,
+        "feb": true,
+        "mar": true,
+        "apr": true,
+        "may": true,
+        "jun": true,
+        "jul": true,
+        "aug": true,
+        "sep": true,
+        "oct": true,
+        "nov": true,
+        "dec": true,
+        "repeat": true,
+        "atstart": true,
+        "x": 207,
+        "y": 85.5,
+        "wires": [
+            [
+                "89b1b7f7.f40868"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "de064987.ed88e8",
+        "type": "rbe",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "x": 1056.99995803833,
+        "y": 782.0000057220459,
+        "wires": [
+            [
+                "4f4cd605.745db8"
+            ]
+        ]
+    },
+    {
+        "id": "45f73362.7ce2fc",
+        "type": "function",
+        "z": "a6dc819e.b0e6f",
+        "name": "Close value",
+        "func": "var closevalue = msg.payload;\nvar labelclose = {close: (\"Previous close: \" + closevalue), parts: {id: 'a1', index: 2, count: 3, type: 'array'}};\nreturn labelclose;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 612,
+        "y": 712,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2317a61c.9e559a",
+        "type": "html",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "tag": ".classname",
+        "ret": "html",
+        "as": "multi",
+        "x": 495,
+        "y": 594,
+        "wires": [
+            [
+                "45f73362.7ce2fc"
+            ]
+        ]
+    },
+    {
+        "id": "f7715088.3ee14",
+        "type": "function",
+        "z": "a6dc819e.b0e6f",
+        "name": "",
+        "func": "if(msg.price) {\n    var price = msg.price;\n}\nif(msg.change) {\n    var change = msg.change;\n}\nif(msg.close) {\n    var close = msg.close;    \n}\n\nif(price && close) {\n    var combined = {payload: price + change + close};\n    return combined;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1158.9999923706055,
+        "y": 651.0000133514404,
+        "wires": [
+            [
+                "415c20a.1c385e"
+            ]
+        ]
+    }
+]
